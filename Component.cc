@@ -1,1 +1,1 @@
-LOL
+#include "Component.h"
