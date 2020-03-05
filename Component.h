@@ -1,52 +1,78 @@
+//Component.h
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #include <string>
 #include <vector>
+#include <iostream>
 
 
 class Connection 
 {
 public:
-	Connection() {};
+	
 	const double GetPotential() { return potential; }
 	void SetPotential(const double & pot) { potential = pot; }
 
 private:
-	double potential{};
+	double potential{0};
 };
 
 class Component
 {
 public:
-	Component();
-	Component(std::string name, Connection p, Connection n);
-	virtual void SetConnection() = 0;
+	Component(const std::string & name, double voltage , Connection &p, Connection &n);
+	virtual void SetConnection(const double & step) = 0;
+	std::string GetName() const { return name; }
+	
+	virtual double GetVoltage() const { return voltage; }
+	virtual double GetCurrent() const { return current; }
+	virtual void SetVoltage() {}
+	virtual void SetCurrent() {}
+	
+	virtual ~Component() {}
 protected:
 	std::string name;
-	Connection* positive;
-	Connection* negative;
+	double voltage{};
+	double current{};
+	Connection& positive;
+	Connection& negative;
 };
 
 class Battery : public Component
 {
 public:
-	Battery(std::string name, double volt, Connection p, Connection n);
-	void SetConnection();
+	Battery(const std::string & name, double volt, Connection &p, Connection &n);
+	void SetConnection(const double & step) override;
 private:
-	double voltage;
+	
 };
 
 class Resistor : public Component
 {
 public:
-	Resistor(std::string name, double ohm, Connection p, Connection n);
-	void SetConnection();
+	Resistor(const std::string & name, double ohm, Connection &p, Connection &n);
+	void SetConnection(const double & step) override;
+	double GetCurrent()const override;
+	void SetVoltage() override;
+	void SetCurrent() override;
 private:
 	double ohm;
 };
 
+class Capacitor : public Component
+{
+public:
+	Capacitor(const std::string & name, double Farad, Connection &p, Connection &n);
+	void SetConnection(const double & step) override;
+	double GetCurrent()const override;
+	void SetVoltage() override;
+	void SetCurrent() override;
+private:
+	double charge;
+	double farad;
+};
 
-void Simulate(std::vector<Component*> net, int loops, int outputs, int steps);
-
+void Simulate(std::vector<Component*>& net, const double & loops, const int & outputs, const double & steps);
+void ClearMem(const std::vector<Component*>& net);
 
 #endif
